@@ -31,7 +31,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter { //webSecurity
             antMatchers("/users").hasAnyRole("USER", "ADMIN").  //only roles with user and admin permitted
             antMatchers("users/**").hasAnyRole("ADMIN").
             and(). //this is to change types away from authorizeRequests/antMatchers
-            httpBasic(). //says we are using database login
+            httpBasic(). //says we are using database logins
             and().
             sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);//for our session not to be saved but we want to log in more often"
     }
