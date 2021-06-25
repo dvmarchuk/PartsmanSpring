@@ -68,7 +68,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         authDAO.save(new AuthToken(token));//uses the constructor to pass it to AuthDAO and save it with AuthToken and tie with user in DB
 
         response.addHeader("Authorization", "Bearer "+ token);
-
+        //this now gets attached to the headers and now gets sent around as authentication
 
         chain.doFilter(request, response);//this is responsible for chaining together the loginfilter call in security config
         //the request will take in my login and password and log-in

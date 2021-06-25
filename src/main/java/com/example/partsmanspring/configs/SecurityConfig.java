@@ -80,7 +80,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter { //webSecurity
                         //authenticationManager() is an object of type authentication manager that will be able to take in credentials and process them through with spring. This is for use in the loginFilter to return back an Authentication object
                         //it is used to complete the loginFilter with the info from loginfilter.java
                         //we then give authDAO through here so we can use it in the loginfilter to save it to the DB
-                        //.addFilterBefore(requestProcessingFilter, UsernamePasswordAuthenticationFilter.class)
+                        //We use addFilterBefore to add the LF filter request before UserPassAuthFilter to receive the token
+
+                        .addFilterBefore(new RequestsProcessingJWTFilter(), UsernamePasswordAuthenticationFilter.class)
+                        //this now comes after LoginFilter. After LF has did its job and added the token to the header we can now
+                        //send stuff back and forth through all urls (that is why we did not add a url filter here) with
+                        //the token that we received. This part has to come after LF.
+                        //RequestsProcessJWTFilt always gets activated
+                        //We do all requests with token after LF. RePrJWTFilter handles every url even login too
+
+
                         .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
             }
 
