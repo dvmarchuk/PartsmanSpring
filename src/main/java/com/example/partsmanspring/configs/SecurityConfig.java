@@ -2,6 +2,7 @@ package com.example.partsmanspring.configs;
 
 
 import com.example.partsmanspring.dao.AuthDAO;
+import com.example.partsmanspring.dao.UserDAO;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,11 +24,13 @@ import java.util.Arrays;
 @Configuration//allow me to declare individual beans in the class then i can call them individually
 @EnableWebSecurity//to allow web-security adapter
 @AllArgsConstructor//for the authDAO methods
-public class SecurityConfig extends WebSecurityConfigurerAdapter { //webSecurityConfigAdap sets up all necessary pieces DB methods
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    //webSecurityConfigAdap sets up all necessary pieces DB methods
     //It accepts all traffic onto itself. Checks its headers and decides what to do with it.
 
 
     private AuthDAO authDAO;
+    private UserDAO userDAO;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -74,7 +77,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter { //webSecurity
                         .and()
                         //we filter the api/login requests
                         //And filter the other requests to make sure of JWT in header
-                        .addFilterBefore(new LoginFilter("/login", authenticationManager(), authDAO),UsernamePasswordAuthenticationFilter.class)
+                        .addFilterBefore(new LoginFilter("/login", authenticationManager(), authDAO, userDAO),UsernamePasswordAuthenticationFilter.class)
                         //this filter out certain url to run before it then passes it into the second arg (UsernamePasswordAuthenticationFilter.class)
                         //this then uses filter chain in LoginFilter to chain the info from LoginFilter to UserPassAuthFilt
                         //authenticationManager() is an object of type authentication manager that will be able to take in credentials and process them through with spring. This is for use in the loginFilter to return back an Authentication object
@@ -82,7 +85,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter { //webSecurity
                         //we then give authDAO through here so we can use it in the loginfilter to save it to the DB
                         //We use addFilterBefore to add the LF filter request before UserPassAuthFilter to receive the token
 
-                        .addFilterBefore(new RequestsProcessingJWTFilter(), UsernamePasswordAuthenticationFilter.class)
+                        .addFilterBefore(new RequestsProcessingJWTFilter(authDAO), UsernamePasswordAuthenticationFilter.class)
                         //this now comes after LoginFilter. After LF has did its job and added the token to the header we can now
                         //send stuff back and forth through all urls (that is why we did not add a url filter here) with
                         //the token that we received. This part has to come after LF.

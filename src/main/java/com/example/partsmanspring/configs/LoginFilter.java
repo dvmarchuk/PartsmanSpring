@@ -1,6 +1,7 @@
 package com.example.partsmanspring.configs;
 
 import com.example.partsmanspring.dao.AuthDAO;
+import com.example.partsmanspring.dao.UserDAO;
 import com.example.partsmanspring.models.AuthToken;
 import com.example.partsmanspring.models.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,18 +26,21 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 
     private AuthenticationManager authenticationManager;
     private AuthDAO authDAO;//we put this into login filter bc it is not a bean
+    private User user;//to let us use it globally in this file
+    private UserDAO userDAO;
 
-    public LoginFilter(String defaultFilterProcessesUrl, AuthenticationManager authenticationManager, AuthDAO authDAO) {
+    public LoginFilter(String defaultFilterProcessesUrl, AuthenticationManager authenticationManager, AuthDAO authDAO, UserDAO userDAO) {
         super(defaultFilterProcessesUrl);
         this.authenticationManager = authenticationManager;
         this.authDAO = authDAO;//this is needed to connect the authDAO we are sent in to the one declared in the file so that we can use it
+        this.userDAO = userDAO;
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws AuthenticationException, IOException, ServletException {
         System.out.println("login filter authentication");
         //this is responsible in spring for the mapping of JSON objects. Binds requests to models
-        User user = new ObjectMapper().readValue(httpServletRequest.getInputStream(), User.class);//first arg is to get what is coming into the server
+        this.user = new ObjectMapper().readValue(httpServletRequest.getInputStream(), User.class);//first arg is to get what is coming into the server
         System.out.println(user);
         Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getName(), user.getPassword()));
         //this checks securityConfig AuthenticationManagerBuilder auth to compare username and password so I don't have to and gives token
@@ -58,17 +62,27 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
             Authentication authResult) throws IOException, ServletException {
         //here we use JWT to tokenize our credentials
         String token = Jwts.builder().
-                setSubject("RandomWord").//what we are coding
+                setSubject("CodedWord").//what we are coding
                 signWith(SignatureAlgorithm.HS512, "codeword".getBytes()).//code word is our key to undo the Hash
                 compact();
 
-//        System.out.println(token);
-//        System.out.println("success");
 
-        authDAO.save(new AuthToken(token));//uses the constructor to pass it to AuthDAO and save it with AuthToken and tie with user in DB
+
+        AuthToken authToken = new AuthToken(token);
+        userDAO.save(user);//it needs to be done through the DB bc otherwise the user has no id therefore cannot be tied to the token
+        authToken.setUser(user);
+
+        //need to save user to DB
+        //to do this I need to pass in UserDAO from SecurityConfig
+        authDAO.save(authToken);//uses the constructor to pass it to AuthDAO and save it with AuthToken and tie with user in DB
+
+
 
         response.addHeader("Authorization", "Bearer "+ token);
         //this now gets attached to the headers and now gets sent around as authentication
+
+
+
 
         chain.doFilter(request, response);//this is responsible for chaining together the loginfilter call in security config
         //the request will take in my login and password and log-in

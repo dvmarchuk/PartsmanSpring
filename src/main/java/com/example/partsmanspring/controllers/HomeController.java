@@ -1,6 +1,6 @@
 package com.example.partsmanspring.controllers;
 
-import com.example.partsmanspring.dao.userDAO;
+import com.example.partsmanspring.dao.UserDAO;
 import com.example.partsmanspring.models.User;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +13,7 @@ import java.util.Optional;
 @CrossOrigin(origins = {"http://localhost:4200"})
 public class HomeController {
 
-    private userDAO userDAO;//I could also put autowired on top if needed but instead im using AllArgsConstructor
+    private UserDAO userDAO;//I could also put autowired on top if needed but instead im using AllArgsConstructor
 
 
     @GetMapping("/users")

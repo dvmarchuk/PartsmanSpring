@@ -1,28 +1,55 @@
 package com.example.partsmanspring.models;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
-@Entity//to add to database
+//@Entity//to add to database
+//@NoArgsConstructor
+//@Data//for setters
+//public class User {
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private int user_id;
+//    private String name;
+//    private String email;
+//    private String password;
+//    private String role = "USER";
+//
+//    @JsonIgnore
+//    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+//    private List<AuthToken> tokenList = new ArrayList<>();
+//
+//    public User(String name) {
+//        this.name = name;
+//    }
+//}
+
+@Entity
+@Data
 @NoArgsConstructor
-@Data//for setters
+@AllArgsConstructor
+@Builder
+@ToString(exclude = {"tokenList"})
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // ++
+    private int user_id;
     private String name;
-    private String email;
     private String password;
-    private String role = "USER";
+    private String email;
+    private String role = "ROLE_USER";
+    @JsonIgnore
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private List<AuthToken> tokenList = new ArrayList<>();
 
     public User(String name) {
         this.name = name;
     }
+
+
 }
