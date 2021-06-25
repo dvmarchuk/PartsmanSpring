@@ -28,20 +28,26 @@ public class RequestsProcessingJWTFilter extends GenericFilterBean {//here we ne
 
         HttpServletRequest httpServletRequest = (HttpServletRequest) clientRequest;
         //this is here so we can pull the headers out of the ServletRequest. We have to hard cast it into a HttpServletRequest
-
         String authorizationToken = httpServletRequest.getHeader("Authorization");//taking the header with the name authorization and pulling it out
 
         if(authorizationToken != null && authorizationToken.startsWith("Bearer")){
             String bearerToken = authorizationToken.replace("Bearer ", "");//to get bearer out of name. idk if this is needed 100%
 
             System.out.println("authtoken in method " + bearerToken);
-            AuthToken authTokenByToken = authDAO.findAuthTokenByToken(bearerToken);//why is this null?
+
+            AuthToken authTokenByToken = authDAO.findAuthTokenByToken(bearerToken);
             System.out.println("authToken " + authTokenByToken);
 
 
 
-            //User user = authTokenByToken.getUser();
-            //System.out.println("user" + user);
+            User user = authTokenByToken.getUser();
+            //System.out.println(user);
+            String username = user.getName();
+            String password = user.getPassword();
+           // System.out.println(username + password);
+
+
+
 
 
 
