@@ -43,12 +43,17 @@ public class User {
     private String password;
     private String email;
     private String role = "ROLE_USER";
+    private String token;
+    private boolean isAuthenticated;
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<AuthToken> tokenList = new ArrayList<>();
 
-    public User(String name) {
+    public User(String name, List<AuthToken> tokenList, boolean isAuthenticated) {
         this.name = name;
+        this.tokenList = tokenList;
+        this.isAuthenticated = isAuthenticated;
+
     }
 
 

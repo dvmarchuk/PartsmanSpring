@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -27,7 +28,6 @@ import java.util.Arrays;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     //webSecurityConfigAdap sets up all necessary pieces DB methods
     //It accepts all traffic onto itself. Checks its headers and decides what to do with it.
-
 
     private AuthDAO authDAO;
     private UserDAO userDAO;
@@ -71,13 +71,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .authorizeRequests()
                         .antMatchers("/", "/save").permitAll()
                         .antMatchers(HttpMethod.POST, "/save").permitAll()
+                        .antMatchers(HttpMethod.POST, "/registration").permitAll()
+                        .antMatchers(HttpMethod.GET, "/activate").permitAll()
                         .antMatchers(HttpMethod.POST, "/login").permitAll()
                         .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .antMatchers("/users").hasAnyRole("USER", "ADMIN")
                         .and()
                         //we filter the api/login requests
                         //And filter the other requests to make sure of JWT in header
-                        .addFilterBefore(new LoginFilter("/login", authenticationManager(), authDAO, userDAO),UsernamePasswordAuthenticationFilter.class)
+                        .addFilterBefore(new EmailFilter("/email", authenticationManager(), authDAO, userDAO),UsernamePasswordAuthenticationFilter.class)
+                        .addFilterBefore(new LoginFilter("/login", authenticationManager(), authDAO, userDAO), UsernamePasswordAuthenticationFilter.class)
                         //this filter out certain url to run before it then passes it into the second arg (UsernamePasswordAuthenticationFilter.class)
                         //this then uses filter chain in LoginFilter to chain the info from LoginFilter to UserPassAuthFilt
                         //authenticationManager() is an object of type authentication manager that will be able to take in credentials and process them through with spring. This is for use in the loginFilter to return back an Authentication object
