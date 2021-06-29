@@ -53,21 +53,23 @@ public class UserController {
         return userDAO.findAll();
     }
 
+    //or use this
 //    @DeleteMapping("/users")//localhost:8080/users?id=4
-//    public List<User> deleteUsersById(@RequestParam int id){
+//    public List<User> deleteUsersById(@RequestParam int id) {
 //        userDAO.deleteById(id);
 //        return userDAO.findAll();
 //    }
 
     @PostMapping("/users")
-    public void postUsers(@RequestBody User user) { //the requestbody makes the body from the post request come into the object "user"
+    public void postUsers(@RequestBody User user) {
+        //the requestbody makes the body from the post request come into the object "user"
         userDAO.save(user);
 
     }
 
+    //these were used for email authentication of my token
     @PostMapping("/registration")
     public void postEmail(@RequestBody User user) {
-        //jwt use token and set it to username to encode
         String compact = Jwts.builder().setSubject(user.getName()).compact();
         user.setToken(compact);
         userDAO.save(user);
